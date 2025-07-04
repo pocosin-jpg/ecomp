@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Community Center - Room Tracker</title>
+
+    <link rel="stylesheet" href="crafts.css">
+    <link rel="stylesheet" href="base.css">
+
+
+
+    <style>
+        body {
+            /* position: sticky;
+            top: 0;
+            z-index: 9999; */
+            width: 100vw;
+            background-image: url(https://i.ibb.co/gb7hsQPM/iwrmage.png);
+
+            background-color: rgba(255, 255, 255, 0.3);
+            background-blend-mode: lighten;
+        }
+
+        ul {
+
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        li a {
+            color: #3d4b57;
+
+        }
+
+        li a:hover {
+            background-color: rgba(234, 235, 238, 0.6);
+            background-blend-mode: lighten;
+
+        }
+
+        h1 {
+            color: #303131;
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+
+        #main {
+            border-radius: 20px 20px 0px 0px;
+            border-top: 1px solid #746C70;
+
+            background-color: white;
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="water">
+        <ul>
+            <li><a href="index.html"><img
+                        src="https://stardewvalleywiki.com/mediawiki/images/f/fc/Achievement_Star_02.png"
+                        style="height: 30px;"></a></li>
+            <li><a href="crafts.html">CRAFTS ROOM</a></li>
+            <li><a href="pantry.html">PANTRY ROOM</a></li>
+            <li><a href="fish.html">FISH TANK</a></li>
+            <li><a href="boiler.html">BOILER ROOM</a></li>
+            <li><a href="board.html">BULLETIN BOARD</a></li>
+
+        </ul>
+
+
+
+        <h1>Crafts <img src="https://stardewvalleywiki.com/mediawiki/images/5/57/Junimo.gif">
+            Room
+        </h1>
+
+    </div>
+
+    <div id="main">
+        <div id="bundleContainer"></div>
+
+        <div id="sidebar">
+            <input type="text" id="searchBox" placeholder="🔎 Search for item..." oninput="applyFilters()" />
+
+            <label>Season:</label>
+            <select id="seasonFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="Spring">Spring</option>
+                <option value="Summer">Summer</option>
+                <option value="Fall">Fall</option>
+                <option value="Winter">Winter</option>
+            </select>
+
+            <label>Status:</label>
+            <select id="statusFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="Complete">Complete</option>
+                <option value="Incomplete">Incomplete</option>
+            </select>
+
+            <button onclick="reloadData()">Clear</button>
+            <br><br><br><br><br>
+            <!-- Game Section -->
+            <div id="notScoreBoard">Foraging Minigame</div>
+            <div id="gameArea">
+                <img id="basket" src="https://i.ibb.co/RpsnzZfy/output-onlinegiftools-2.png" alt="basket" />
+
+                <!-- Start Screen -->
+                <div id="startScreen" class="screen">
+
+                    <button id="startBtn">Start Game</button>
+                </div>
+
+                <!-- Game Over Screen -->
+                <div id="gameOverScreen" class="screen" style="display:none;">
+                    <div id="gameOverText"></div>
+                    <div id="finalScoreText"></div>
+                    <button id="restartBtn">Play Again</button>
+                </div>
+            </div>
+
+            <div id="scoreBoard">Score: 0</div>
+        </div>
+    </div>
+
+    <script src="base.js"></script>
+    <script src="crafts.js"></script>
+    <script>
+        const gameArea = document.getElementById("gameArea");
+        const basket = document.getElementById("basket");
+        const scoreSpan = document.getElementById("scoreBoard");
+
+        const startScreen = document.getElementById("startScreen");
+        const startBtn = document.getElementById("startBtn");
+        const gameOverScreen = document.getElementById("gameOverScreen");
+        const finalScoreText = document.getElementById("finalScoreText");
+        const restartBtn = document.getElementById("restartBtn");
+
+        let basketX = 50; // percentage
+        let forageables = [];
+        let score = 0;
+        let gameInterval;
+        let gameRunning = false;
+        let fallSpeed = 3;
+        let spawnChance = 0.05;
+
+        // Stardew Valley forageable images
+        const forageableImages = [
+            "https://stardewvalleywiki.com/mediawiki/images/thumb/9/90/Wild_Horseradish.png/24px-Wild_Horseradish.png",
+            "https://stardewvalleywiki.com/mediawiki/images/thumb/4/4b/Daffodil.png/24px-Daffodil.png",
+            "https://stardewvalleywiki.com/mediawiki/images/thumb/5/57/Leek.png/24px-Leek.png",
+            "https://stardewvalleywiki.com/mediawiki/images/thumb/c/c6/Spice_Berry.png/24px-Spice_Berry.png",
+            "https://stardewvalleywiki.com/mediawiki/images/thumb/2/2f/Crocus.png/24px-Crocus.png",
+            "https://stardewvalleywiki.com/mediawiki/images/thumb/e/e1/Red_Mushroom.png/24px-Red_Mushroom.png"
+        ];
+
+        // Make basket follow mouse
+        gameArea.addEventListener('mousemove', (e) => {
+            if (!gameRunning) return;
+
+            const rect = gameArea.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+
+            let xPercent = (x / rect.width) * 100;
+            xPercent = Math.max(0, Math.min(100, xPercent));
+
+            basket.style.left = xPercent + "%";
+        });
+
+        function createForageable() {
+            if (!gameRunning) return;
+
+            const item = document.createElement("img");
+            item.src = forageableImages[Math.floor(Math.random() * forageableImages.length)];
+            item.classList.add("forageable");
+            item.style.left = Math.random() * 90 + "%";
+            item.style.top = "0px";
+            gameArea.appendChild(item);
+            forageables.push(item);
+        }
+
+        function updateGame() {
+            forageables.forEach((item, index) => {
+                let top = parseInt(item.style.top);
+                const newTop = top + fallSpeed;
+                item.style.top = newTop + "px";
+
+                const basketRect = basket.getBoundingClientRect();
+                const itemRect = item.getBoundingClientRect();
+                const gameRect = gameArea.getBoundingClientRect();
+
+                if (
+                    itemRect.bottom >= basketRect.top &&
+                    itemRect.left < basketRect.right &&
+                    itemRect.right > basketRect.left
+                ) {
+                    // Caught
+                    item.remove();
+                    forageables.splice(index, 1);
+                    score++;
+                    scoreSpan.textContent = "Score: " + score;
+
+                    // Increase difficulty
+                    fallSpeed += 0.2;
+                    spawnChance = Math.min(0.3, spawnChance + 0.005);
+
+                } else if (itemRect.bottom >= gameRect.bottom) {
+                    // Missed and hit bottom
+                    item.style.top = (gameRect.height - item.height) + "px"; // stop falling visually
+                    endGame();
+                }
+            });
+
+            if (Math.random() < spawnChance) {
+                createForageable();
+            }
+        }
+
+        function startGame() {
+            // Reset
+            basketX = 50;
+            score = 0;
+            fallSpeed = 3;
+            spawnChance = 0.05;
+            scoreSpan.textContent = "Score: 0";
+            forageables.forEach(f => f.remove());
+            forageables = [];
+
+            startScreen.style.display = "none";
+            gameOverScreen.style.display = "none";
+
+            basket.src = "https://i.ibb.co/4gCvPmPn/output-onlinegiftools.png";
+
+            gameRunning = true;
+            gameInterval = setInterval(updateGame, 50);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            clearInterval(gameInterval);
+
+            forageables.forEach(f => f.remove());
+            forageables = [];
+
+            gameOverText.textContent = "Game Over!"
+            finalScoreText.textContent = "Final Score: " + score;
+            gameOverScreen.style.display = "flex";
+
+            basket.src = "https://i.ibb.co/RpsnzZfy/output-onlinegiftools-2.png";
+        }
+
+        startBtn.addEventListener("click", startGame);
+        restartBtn.addEventListener("click", startGame);
+
+
+
+
+
+
+        const ul = document.querySelector("#ul");
+        const h1 = document.querySelector("#h1");
+
+        function checkOverlap() {
+            const ulRect = ul.getBoundingClientRect();
+            const h1Rect = h1.getBoundingClientRect();
+
+            // Calculate vertical overlap
+            const overlapTop = Math.max(ulRect.top, h1Rect.top);
+            const overlapBottom = Math.min(ulRect.bottom, h1Rect.bottom);
+            const overlapHeight = Math.max(0, overlapBottom - overlapTop);
+
+            const threshold = h1Rect.height / 3;
+
+            if (overlapHeight >= threshold) {
+                h1.style.opacity = "0";
+            } else {
+                h1.style.opacity = "1";
+            }
+        }
+
+        window.addEventListener('scroll', checkOverlap);
+        window.addEventListener('resize', checkOverlap);
+        window.addEventListener('load', checkOverlap);
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang='en' class=''>
+
+<head>
+
+    <meta charset='UTF-8'>
+    <title> Demo</title>
+
+    <link rel="stylesheet" href="base.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --x: 0;
+            --y: 0;
+            --text-color: black;
+            --text-layer-1: --text-color;
+            --text-layer-2: #a5dbeb;
+            --text-layer-3: #347cb4;
+            --blur: 5px;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html {
+            scrollbar-gutter: stable;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            block-size: 100vh;
+            font-family: "Pixelify Sans", sans-serif;
+            color: var(--text-color);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            inline-size: 100%;
+            block-size: 100%;
+            display: flex;
+            flex-flow: row nowrap;
+
+            .card {
+                inline-size: inherit;
+                min-block-size: 250vh;
+                flex-shrink: 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: start;
+                padding: 3rem;
+                scale: 1;
+
+                & a {
+                    display: inline-flex;
+                    padding: 0.55rem 1rem;
+                    text-decoration: none;
+                    white-space: nowrap;
+                    font-size: clamp(2rem, 3vw, 3rem);
+                    color: var(--text-layer-2);
+                    border-radius: 0.25rem;
+                    transition: scale 200ms cubic-bezier(0.64, 0.11, 0.24, 2.47);
+
+                    &:not(:hover) {
+                        filter: blur(var(--blur));
+                        -webkit-filter: blur(var(--blur));
+                    }
+
+                    animation: blur both linear;
+                    animation-timeline: view(x 50vw auto);
+
+                    &:hover {
+                        scale: 1.35;
+                        background: rgb(87 101 133 / 20%);
+                    }
+                }
+
+
+            }
+        }
+
+
+        .back {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+
+            background-color: white;
+            background-image: url(https://i.imgur.com/GTnMVrS.png);
+            background-color: rgba(255, 255, 255, 0.3);
+            background-blend-mode: lighten;
+            background-position: var(--x) var(--y);
+            background-repeat: no-repeat;
+            background-size: 250vh;
+
+            animation: scroll-page both linear;
+            animation-timeline: scroll(inline);
+        }
+
+        .butterflyMain {
+            position: fixed;
+            z-index: 2;
+            left: 1rem;
+            top: 50%;
+            translate: 0 -50%;
+            display: flex;
+            gap: 1rem;
+            animation: butterflyMain both linear;
+            animation-timeline: scroll(inline);
+
+            & #butterfly {
+                display: none;
+
+                .screw {
+                    transform-origin: 50% 46%;
+                    animation: screw 100ms infinite;
+                }
+            }
+        }
+
+        label {
+            display: none;
+            position: fixed;
+            top: 0.5rem;
+            right: 0.5rem;
+            z-index: 3;
+            padding: 0.25rem;
+            color: var(--text-layer-3);
+            background-color: var(--text-color);
+            backdrop-filter: blur(4px);
+
+            &:has(input[type="checkbox"]) {
+                ~.container {
+                    flex-direction: column;
+
+                    & .card {
+                        flex-direction: column;
+
+                        & a {
+                            translate: none;
+                            /* 					color: var(--text-color); */
+                            scale: 1;
+                            animation-timeline: view(y 40vh auto);
+                        }
+                    }
+
+                    ~.back {
+                        animation-timeline: scroll();
+                    }
+                }
+
+                ~.butterflyMain {
+                    top: 5rem;
+                    right: 1rem;
+                    left: auto;
+                    flex-direction: column;
+                    animation: butterfly both linear;
+                    animation-timeline: scroll();
+
+                    & #butterflyMain {
+                        display: none;
+                    }
+
+                    & #butterfly {
+                        display: block;
+                    }
+                }
+            }
+        }
+
+        .help {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            translate: -50%;
+            color: white;
+        }
+
+
+
+        .inverted-border-radius {
+            position: fixed;
+            min-height: 5vh;
+            width: 100vw;
+            top: 0;
+            background-color: white;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .inverted-border-radius::before,
+        .inverted-border-radius::after {
+            content: "";
+            position: absolute;
+            background-color: transparent;
+            bottom: -50px;
+            height: 50px;
+            width: 25px;
+            box-shadow: 0 -25px 0 0 white;
+        }
+
+        .inverted-border-radius::before {
+            left: 0;
+            border-top-left-radius: 25px;
+        }
+
+        .inverted-border-radius::after {
+            right: 0;
+            border-top-right-radius: 25px;
+        }
+
+
+        @keyframes scroll-page {
+            to {
+                /* 		--x: 100%; */
+                /* 		--y: 100%; */
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes butterfly {
+            0% {
+                scale: 0.6;
+                translate: -5vw 5vh;
+            }
+
+            20% {
+                translate: -40vw 20vh;
+            }
+
+            40% {
+                translate: -30vw 60vh;
+            }
+
+            60% {
+                translate: -50vw 40vh;
+            }
+
+            100% {
+                translate: -80vw 80vh;
+                scale: 2;
+            }
+        }
+
+        @keyframes blur {
+            to {
+                filter: blur(0);
+                -webkit-filter: blur(0);
+                color: var(--text-color);
+            }
+        }
+
+        @keyframes screw {
+            to {
+                rotate: 180deg;
+            }
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+    <label for="random">
+        <input id="random" type="checkbox" checked="checked" />
+    </label>
+    <div class="butterflyMain">
+        <img id="butterfly" width="120" src="https://stardewvalleywiki.com/mediawiki/images/6/6c/ButterflyAnimated.gif">
+        </img>
+    </div>
+
+    </div>
+    <div class="container">
+        <div class="card" data-name="card-0">
+            <br>
+            <a href="crafts.html"><img width="50"
+                    src="https://moddropstorage.blob.core.windows.net/modicons/27/706059/icon_original"
+                    style="transform: rotate(90deg); " /> &nbsp;CRAFTS ROOM
+            </a>
+            <a href="boiler.html"><img width="50"
+                    src="https://moddropstorage.blob.core.windows.net/modicons/27/706059/icon_original"
+                    style="transform: rotate(90deg); " /> &nbsp;BOILER ROOM
+            </a>
+            <a href="pantry.html"><img width="50"
+                    src="https://moddropstorage.blob.core.windows.net/modicons/27/706059/icon_original"
+                    style="transform: rotate(90deg); " /> &nbsp;PANTRY ROOM
+            </a>
+            <a href="fish.html"><img width="50"
+                    src="https://moddropstorage.blob.core.windows.net/modicons/27/706059/icon_original"
+                    style="transform: rotate(90deg); " /> &nbsp;FISH TANK
+            </a>
+            <a href="board.html"><img width="50"
+                    src="https://moddropstorage.blob.core.windows.net/modicons/27/706059/icon_original"
+                    style="transform: rotate(90deg); " /> &nbsp;BULLETIN BOARD
+            </a>
+            <p style="opacity: 0;">
+                this is a spacer
+            </p>
+
+            <br>
+        </div>
+    </div>
+
+    <div class="back"></div>
+    <div class="inverted-border-radius">
+
+        <h1>STARDEW VALLEY <img src="https://stardewvalleywiki.com/mediawiki/images/5/57/Junimo.gif">
+            COMMUNITY CENTER
+        </h1>
+    </div>
+
+    <div class="help">Scroll ⇅</div>
+</body>
+
+</html>

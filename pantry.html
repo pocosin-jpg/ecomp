@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Community Center - Room Tracker</title>
+
+    <link rel="stylesheet" href="crafts.css">
+    <link rel="stylesheet" href="base.css">
+
+    <style>
+        #sidebar-plants {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        #grow-all-button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            width: 100%;
+            cursor: pointer;
+            background-color: #a4d4ae;
+            border: 1px solid #6b8f71;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+
+        .plant-block {
+            position: relative;
+            width: 120px;
+            aspect-ratio: 1 / 1;
+            flex-shrink: 0;
+        }
+
+        .plant-block img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+
+        #main {
+            background-image: url(https://i.ibb.co/4nQFqnNf/imfgfgsdfage.png);
+            background-color: rgba(255, 255, 255, 0.3);
+            background-blend-mode: lighten;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px 20px 0px 0px;
+            border-top: 1px solid #746C70;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="water">
+        <ul>
+            <li><a href="index.html"><img
+                        src="https://stardewvalleywiki.com/mediawiki/images/f/fc/Achievement_Star_02.png"
+                        style="height: 30px;"></a></li>
+            <li><a href="crafts.html">CRAFTS ROOM</a></li>
+            <li><a href="pantry.html">PANTRY ROOM</a></li>
+            <li><a href="fish.html">FISH TANK</a></li>
+            <li><a href="boiler.html">BOILER ROOM</a></li>
+            <li><a href="board.html">BULLETIN BOARD</a></li>
+        </ul>
+
+        <h1>Pantry <img src="https://stardewvalleywiki.com/mediawiki/images/5/57/Junimo.gif">
+            Room
+        </h1>
+    </div>
+
+    <div id="main">
+        <div id="bundleContainer"></div>
+
+        <div id="sidebar">
+            <input type="text" id="searchBox" placeholder="🔎 Search for item..." oninput="applyFilters()" />
+
+            <label>Season:</label>
+            <select id="seasonFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="Spring">Spring</option>
+                <option value="Summer">Summer</option>
+                <option value="Fall">Fall</option>
+                <option value="Winter">Winter</option>
+            </select>
+
+            <label>Status:</label>
+            <select id="statusFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="Complete">Complete</option>
+                <option value="Incomplete">Incomplete</option>
+            </select>
+
+            <button onclick="reloadData()">Clear</button>
+            <br><br><br><br>
+            <button id="grow-all-button">🌿 Grow All Plants</button><br><br><br>
+            <!-- Multiple plants will be rendered here -->
+            <div id="sidebar-plants">
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="base.js"></script>
+    <script src="pantry.js"></script>
+
+    <script>
+        const PLANT_DATA = [
+            {
+                name: "Corn",
+                stages: [
+                    "https://stardewvalleywiki.com/mediawiki/images/9/97/Corn_Stage_2.png",
+                    "https://stardewvalleywiki.com/mediawiki/images/d/db/Corn_Stage_3.png",
+                    "https://stardewvalleywiki.com/mediawiki/images/1/11/Corn_Stage_4.png",
+                    "https://stardewvalleywiki.com/mediawiki/images/4/4d/Corn_Stage_5.png",
+                    "https://stardewvalleywiki.com/mediawiki/images/9/9d/Corn_Stage_6.png",
+                    "https://stardewvalleywiki.com/mediawiki/images/2/29/Corn_Stage_7.png"
+                ]
+            },
+            {
+                name: "Blueberry",
+                stages: [
+                    "https://stardewvalleywiki.com/mediawiki/images/3/32/Blueberry_Stage_2.png",
+                    "https://stardewvalleywiki.com/mediawiki/images/5/54/Blueberry_Stage_3.png",
+                    "https://stardewvalleywiki.com/mediawiki/images/b/b1/Blueberry_Stage_4.png",
+                    "https://stardewvalleywiki.com/mediawiki/images/6/69/Blueberry_Stage_5.png",
+                    "https://stardewvalleywiki.com/mediawiki/images/8/84/Blueberry_Stage_6.png"
+                ]
+            },
+        ];
+
+        const plantContainer = document.getElementById("sidebar-plants");
+        const growAllButton = document.getElementById("grow-all-button");
+
+        const plantState = [];
+
+        PLANT_DATA.forEach((plant, index) => {
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("plant-block");
+
+            const imgA = document.createElement("img");
+            imgA.src = plant.stages[0];
+            imgA.style.opacity = 1;
+
+            const imgB = document.createElement("img");
+            imgB.src = plant.stages[0];
+            imgB.style.opacity = 0;
+
+            wrapper.appendChild(imgA);
+            wrapper.appendChild(imgB);
+            plantContainer.appendChild(wrapper);
+
+            plantState.push({
+                index,
+                currentStage: 0,
+                stages: plant.stages,
+                fullyGrown: false,
+                imgA,
+                imgB,
+                showingA: true
+            });
+        });
+        growAllButton.addEventListener("click", () => {
+            plantState.forEach((plant) => {
+                if (!plant.fullyGrown) {
+                    const success = Math.random() < 0.5;
+
+                    if (success) {
+                        plant.currentStage++;
+
+                        if (plant.showingA) {
+                            plant.imgB.src = plant.stages[plant.currentStage];
+                            plant.imgB.style.opacity = 1;
+                            plant.imgA.style.opacity = 0;
+                        } else {
+                            plant.imgA.src = plant.stages[plant.currentStage];
+                            plant.imgA.style.opacity = 1;
+                            plant.imgB.style.opacity = 0;
+                        }
+
+                        plant.showingA = !plant.showingA;
+
+                        if (plant.currentStage === plant.stages.length - 1) {
+                            plant.fullyGrown = true;
+                        }
+                    }
+                }
+            });
+
+            const allGrown = plantState.every(p => p.fullyGrown);
+            if (allGrown) {
+                growAllButton.disabled = true;
+                growAllButton.textContent = "🌾 All Fully Grown!";
+            }
+        });
+
+        // Disable button if all plants are grown
+        const allGrown = plantState.every(p => p.fullyGrown);
+        if (allGrown) {
+            growAllButton.disabled = true;
+            growAllButton.textContent = "🌾 All Fully Grown!";
+        }
+        ;
+
+
+
+    </script>
+</body>
+
+</html>

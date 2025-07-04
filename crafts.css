@@ -1,0 +1,83 @@
+#gameArea {
+    position: relative;
+    width: 300px;
+    height: 420px;
+    border: 1px solid #4E4F50;
+    border-radius: 20px;
+    ;
+    background-image: url(https://i.ibb.co/gb7hsQPM/iwrmage.png);
+    background-color: rgba(255, 255, 255, 0.3);
+    background-blend-mode: lighten;
+    overflow: hidden;
+    margin: 0 auto;
+    user-select: none;
+}
+
+#basket {
+    position: absolute;
+    bottom: 10px;
+    width: 50px;
+    height: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 0.1s;
+}
+
+.forageable {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+    user-select: none;
+}
+
+#notScoreBoard {
+    font-weight: bold;
+    font-size: 16px;
+    margin: 10px auto;
+    width: 300px;
+    text-align: center;
+}
+
+#scoreBoard {
+    font-weight: bold;
+    font-size: 16px;
+    margin: 10px auto;
+    width: 300px;
+    text-align: center;
+}
+
+/* Screens */
+.screen {
+    position: absolute;
+    width: 300px;
+    height: 420px;
+    background: rgba(255, 255, 255, 0.45);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    user-select: none;
+}
+
+#startScreen,
+#gameOverScreen {
+    top: 0;
+    left: 0;
+}
+
+#startBtn {
+
+    max-width: 100px;
+    border: solid 1px #746C70;
+    border-radius: 10px;
+}
+
+#restartBtn {
+
+    max-width: 100px;
+    border: solid 1px #746C70;
+    border-radius: 10px;
+}

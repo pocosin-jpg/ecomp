@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Community Center - Room Tracker</title>
+
+    <link rel="stylesheet" href="crafts.css">
+    <link rel="stylesheet" href="base.css">
+
+    <style>
+        #junimo {
+            position: fixed;
+            width: 48px;
+            height: 48px;
+            transition: transform 0.2s;
+            z-index: 9999;
+            pointer-events: none;
+
+        }
+
+
+        #homeBox {
+            width: 100%;
+            height: 20%;
+            background-image: url(https://i.ibb.co/kg8hF4C4/imsdfage.png);
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        #summonButton {
+            display: block;
+            margin: 10px auto;
+            padding: 6px 12px;
+            background-color: #77dd77;
+            color: #111;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+
+        #main {
+            background-image: url(https://i.ibb.co/v4ZzTB7Z/Screenshot-2025-07-04-020522.png);
+
+            background-color: rgba(255, 255, 255, 0.3);
+            background-blend-mode: lighten;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: right;
+
+            border-radius: 20px 20px 0px 0px;
+
+            border-top: 1px solid #746C70;
+
+
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="water">
+        <ul>
+            <li><a href="index.html"><img
+                        src="https://stardewvalleywiki.com/mediawiki/images/f/fc/Achievement_Star_02.png"
+                        style="height: 30px;"></a></li>
+            <li><a href="crafts.html">CRAFTS ROOM</a></li>
+            <li><a href="pantry.html">PANTRY ROOM</a></li>
+            <li><a href="fish.html">FISH TANK</a></li>
+            <li><a href="boiler.html">BOILER ROOM</a></li>
+            <li><a href="board.html">BULLETIN BOARD</a></li>
+
+        </ul>
+
+        <h1>BULLETIN
+            BOard
+        </h1>
+    </div>
+    <div id="main">
+        <div id="bundleContainer"></div>
+
+        <div id="sidebar">
+            <input type="text" id="searchBox" placeholder="🔎 Search for item..." oninput="applyFilters()" />
+
+            <label>Season:</label>
+            <select id="seasonFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="Spring">Spring</option>
+                <option value="Summer">Summer</option>
+                <option value="Fall">Fall</option>
+                <option value="Winter">Winter</option>
+            </select>
+
+            <label>Status:</label>
+            <select id="statusFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="Complete">Complete</option>
+                <option value="Incomplete">Incomplete</option>
+            </select>
+
+            <button onclick="reloadData()">Clear</button>
+            <br>
+            <br><br><br><br>
+
+            <div id="homeBox"></div>
+            <img id="junimo" src="https://stardewvalleywiki.com/mediawiki/images/5/57/Junimo.gif" alt="Junimo" />
+            <button id="summonButton">Summon Junimo</button>
+
+        </div>
+    </div>
+    <script src="board.js"></script>
+    <script>
+        const junimo = document.getElementById('junimo');
+        const homeBox = document.getElementById('homeBox');
+        const summonButton = document.getElementById('summonButton');
+
+
+        let x, y;
+        let dx = 0;
+        let dy = 0;
+        let moving = false;
+        let returningHome = false;
+        let atHome = true;
+
+        function updateButton() {
+            if (atHome) {
+                summonButton.textContent = "Release Junimo";
+            } else {
+                summonButton.textContent = "Summon Junimo";
+            }
+        }
+
+        function getHomeBoxCenter() {
+            const rect = homeBox.getBoundingClientRect();
+            return {
+                x: rect.left + rect.width / 2 - 24,
+                y: rect.top + rect.height / 2 - 24
+            };
+        }
+
+        function getScreenBounds() {
+            return {
+                width: window.innerWidth - junimo.width,
+                height: window.innerHeight - junimo.height
+            };
+        }
+
+        // Place Junimo in home box at load
+        const homePos = getHomeBoxCenter();
+        x = homePos.x;
+        y = homePos.y;
+        junimo.style.left = `${x}px`;
+        junimo.style.top = `${y}px`;
+        atHome = true;
+        updateButton();
+
+        // 2 second wait on page load before wandering 
+        setTimeout(() => {
+            if (atHome && !returningHome) {
+                releaseJunimo();
+            }
+        }, 2000);
+
+        function releaseJunimo() {
+            dx = 0.4;
+            dy = 0.4;
+            moving = true;
+            returningHome = false;
+            atHome = false;
+            updateButton();
+        }
+
+
+        function move() {
+            if (moving && !returningHome) {
+                x += dx;
+                y += dy;
+
+                const bounds = getScreenBounds();
+
+                // Boundary check 
+                if (x < 0) {
+                    x = 0;
+                    dx = Math.abs(dx);
+                } else if (x > bounds.width) {
+                    x = bounds.width;
+                    dx = -Math.abs(dx);
+                }
+
+                if (y < 0) {
+                    y = 0;
+                    dy = Math.abs(dy);
+                } else if (y > bounds.height) {
+                    y = bounds.height;
+                    dy = -Math.abs(dy);
+                }
+
+                // Occasionally change direction
+
+                if (Math.random() < 0.02) {
+                    dx += (Math.random() - 0.5) * 0.1;
+                    dy += (Math.random() - 0.5) * 0.1;
+
+                    const speed = Math.hypot(dx, dy);
+                    const maxSpeed = 0.6;
+                    if (speed > maxSpeed) {
+                        dx = (dx / speed) * maxSpeed;
+                        dy = (dy / speed) * maxSpeed;
+                    }
+                }
+
+                if (Math.random() < 0.003) {
+                    moving = false;
+                    setTimeout(() => { moving = true; }, 1000);
+                }
+            }
+            else if (returningHome) {
+                const home = getHomeBoxCenter();
+                const distX = home.x - x;
+                const distY = home.y - y;
+                const dist = Math.hypot(distX, distY);
+
+                if (dist < 2) {
+                    x = home.x;
+                    y = home.y;
+                    returningHome = false;
+                    moving = false;
+                    atHome = true;
+                    updateButton();
+                } else {
+                    const speed = 2;
+                    x += (distX / dist) * speed;
+                    y += (distY / dist) * speed;
+                }
+            }
+
+            junimo.style.left = `${x}px`;
+            junimo.style.top = `${y}px`;
+
+            requestAnimationFrame(move);
+        }
+
+        move();
+
+        summonButton.addEventListener('click', () => {
+            if (atHome) {
+                // Release
+                releaseJunimo();
+            } else {
+                // Summon back
+                moving = false;
+                returningHome = true;
+                atHome = false;
+                updateButton();
+            }
+        });
+    </script>
+    <script src="base.js"></script>
+    <script src="board.js"></script>
+
+</body>
+
+</html>

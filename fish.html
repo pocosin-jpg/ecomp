@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Community Center - Room Tracker</title>
+
+    <link rel="stylesheet" href="crafts.css">
+    <link rel="stylesheet" href="base.css">
+
+
+    <style>
+        #main {
+            background-image: url(https://i.ibb.co/HpBp1HjQ/imasagtgfge.png);
+
+            background-color: rgba(255, 255, 255, 0.3);
+            background-blend-mode: lighten;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: left;
+
+            border-radius: 20px 20px 0px 0px;
+
+            border-top: 1px solid #746C70;
+
+
+        }
+
+        .bundle {
+            background-color: rgba(255, 255, 255, 0);
+
+            border: 1px solid #746C70;
+        }
+
+
+        .items {
+            background-color: rgba(255, 255, 255, 0);
+        }
+
+        .bundle-header {
+            background-color: rgba(255, 255, 255, 0);
+        }
+
+
+        /* h2 {
+            font-weight: bold;
+            font-size: 16px;
+            margin: 10px auto;
+            width: 300px;
+            text-align: center;
+        } */
+
+
+        h3 {
+            font-weight: bold;
+            font-size: 16px;
+            margin: 10px auto;
+            width: 300px;
+            text-align: center;
+        }
+
+
+        #fishing-container {
+            margin: 20px;
+            font-family: sans-serif;
+            text-align: center;
+
+            width: 300px;
+
+        }
+
+        #bar {
+            position: relative;
+            width: 283px;
+            height: 18px;
+            margin: 45px 10px auto;
+            border: 1px solid #444;
+            overflow: hidden;
+            justify-content: center;
+            z-index: 99;
+        }
+
+        .target {
+            height: 16px;
+            width: 18px;
+            z-index: 9999;
+            position: absolute;
+            top: 2px;
+            background: linear-gradient(to bottom, #66b266 91%, #3e803e 9%);
+        }
+
+
+        #fishing-wrapper {
+            background-image: url(https://i.ibb.co/KpppbJzY/Screenshot-2025-07-04-003419-modified.png);
+            width: 100%;
+            height: 100px;
+            display: block;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+
+
+        }
+
+        .slider {
+            position: absolute;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: red;
+            z-index: 9999;
+        }
+
+
+        #result {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="water">
+        <ul>
+            <li><a href="index.html"><img
+                        src="https://stardewvalleywiki.com/mediawiki/images/f/fc/Achievement_Star_02.png"
+                        style="height: 30px;"></a></li>
+            <li><a href="crafts.html">CRAFTS ROOM</a></li>
+            <li><a href="pantry.html">PANTRY ROOM</a></li>
+            <li><a href="fish.html">FISH TANK</a></li>
+            <li><a href="boiler.html">BOILER ROOM</a></li>
+            <li><a href="board.html">BULLETIN BOARD</a></li>
+
+        </ul>
+
+        <h1>FISH <img src="https://stardewvalleywiki.com/mediawiki/images/5/57/Junimo.gif">
+            Tank
+        </h1>
+
+
+
+    </div>
+
+    <div id="main">
+
+
+        <div id="bundleContainer"></div>
+
+        <div id="sidebar">
+            <input type="text" id="searchBox" placeholder="🔎 Search for item..." oninput="applyFilters()" />
+
+            <label>Season:</label>
+            <select id="seasonFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="Spring">Spring</option>
+                <option value="Summer">Summer</option>
+                <option value="Fall">Fall</option>
+                <option value="Winter">Winter</option>
+            </select>
+
+            <label>Status:</label>
+            <select id="statusFilter" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="Complete">Complete</option>
+                <option value="Incomplete">Incomplete</option>
+            </select>
+
+            <button onclick="reloadData()">Clear</button>
+
+            <br>
+            <br><br><br><br>
+
+            <div id="fishing-container">
+                <h3>Fishing Minigame</h3>
+                <div id="fishing-wrapper" style="position: relative; display: inline-block;">
+
+                    <div id="bar" style="display:none;">
+                        <div class="target" id="target"></div>
+                        <div class="slider" id="slider"></div>
+                    </div>
+                </div>
+                <button id="castButton">Cast Line</button>
+                <button id="catchButton" style="display:none;">Catch!</button>
+                <p id="result" style="height: 15px"></p>
+
+
+
+            </div>
+
+            <div id="caughtList" style="margin-top: 20px;">
+                <h3>Caught Fish:</h3>
+                <div id="caughtFishContainer" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="fish.js"></script>
+    <script src="base.js"></script>
+
+    <script>
+        let barWidth = 283;
+        const fishPool = [
+            "Tiger Trout", "Carp", "Catfish", "Bullhead", "Red Snapper", "Sunfish", "Tuna"
+        ];
+
+        const fishImages = {
+            "Tiger Trout": "https://stardewvalleywiki.com/mediawiki/images/thumb/0/01/Tiger_Trout.png/36px-Tiger_Trout.png",
+            "Carp": "https://stardewvalleywiki.com/mediawiki/images/thumb/a/a8/Carp.png/36px-Carp.png",
+            "Catfish": "https://stardewvalleywiki.com/mediawiki/images/thumb/9/99/Catfish.png/36px-Catfish.png",
+            "Bullhead": "https://stardewvalleywiki.com/mediawiki/images/thumb/d/db/Bullhead.png/36px-Bullhead.png",
+            "Sunfish": "https://stardewvalleywiki.com/mediawiki/images/thumb/5/56/Sunfish.png/36px-Sunfish.png",
+            "Tuna": "https://stardewvalleywiki.com/mediawiki/images/thumb/c/c5/Tuna.png/36px-Tuna.png",
+            "Red Snapper": "https://stardewvalleywiki.com/mediawiki/images/thumb/d/d3/Red_Snapper.png/36px-Red_Snapper.png"
+        };
+
+        const bar = document.getElementById("bar");
+        const slider = document.getElementById("slider");
+        const target = document.getElementById("target");
+        const castButton = document.getElementById("castButton");
+        const catchButton = document.getElementById("catchButton");
+        const result = document.getElementById("result");
+        const caughtFishContainer = document.getElementById("caughtFishContainer");
+
+        let animationFrame;
+        let direction = 1;
+        let position = 0;
+        let speed = 5;
+
+        function startSlider() {
+            position = Math.floor(Math.random() * 300);
+            direction = Math.random() < 0.5 ? 1 : -1;
+            animateSlider();
+        }
+
+        function animateSlider() {
+            let speedVariation = (Math.random() - 0.5) * 0.4;
+            let currentSpeed = speed + speedVariation;
+
+            position += direction * currentSpeed;
+
+            if (position >= barWidth - 4) {
+                position = barWidth - 4;
+                direction = -1;
+            } else if (position <= 0) {
+                position = 0;
+                direction = 1;
+            }
+
+            slider.style.left = position + "px";
+            animationFrame = requestAnimationFrame(animateSlider);
+        }
+
+        function stopSlider() {
+            cancelAnimationFrame(animationFrame);
+        }
+
+        function castLine() {
+            result.textContent = "";
+            bar.style.display = "block";
+            catchButton.style.display = "inline-block";
+            castButton.style.display = "none";
+            result.textContent = "";
+
+            const minTargetWidth = 30;
+            const maxTargetWidth = 60;
+            const targetWidth = Math.min(barWidth - 10, Math.floor(Math.random() * (maxTargetWidth - minTargetWidth + 1)) + minTargetWidth);
+            const maxTargetStart = barWidth - targetWidth;
+            const targetStart = Math.floor(Math.random() * maxTargetStart);
+
+            target.style.left = targetStart + "px";
+            target.style.width = targetWidth + "px";
+
+            speed = Math.random() * 3 + 4;
+            direction = Math.random() < 0.5 ? 1 : -1;
+
+            startSlider();
+        }
+
+        function attemptCatch() {
+            stopSlider();
+            bar.style.display = "none";
+            catchButton.style.display = "none";
+            castButton.style.display = "inline-block";
+
+            const sliderCenter = position + 2;
+            const targetStart = parseInt(target.style.left);
+            const targetEnd = targetStart + parseInt(target.style.width);
+
+            if (sliderCenter >= targetStart && sliderCenter <= targetEnd) {
+                const fish = fishPool[Math.floor(Math.random() * fishPool.length)];
+
+                // Show name + image in result area
+                result.innerHTML = `
+      <div style="display: block; align-items: center; gap: 10px;">
+        
+        <span style="font-size: 16px;">You caught a&nbsp</span>
+        <img src="${fishImages[fish]}" alt="${fish}" style="width:20px; height:20px;"><span style="font-size: 16px;">&nbsp${fish}!</span>
+      </div>
+    `;
+
+                addCaughtFish(fish);
+            } else {
+                result.textContent = "🐟 The fish escaped";
+            }
+        }
+
+
+        function addCaughtFish(fish) {
+            const fishDiv = document.createElement("div");
+            fishDiv.style.display = "flex";
+            fishDiv.style.flexDirection = "column";
+            fishDiv.style.alignItems = "center";
+            fishDiv.style.width = "60px";
+
+            const img = document.createElement("img");
+            img.src = fishImages[fish] || "";
+            img.alt = fish;
+            img.style.width = "40px";
+            img.style.height = "40px";
+
+            const label = document.createElement("div");
+            label.textContent = fish;
+            label.style.fontSize = "12px";
+            label.style.textAlign = "center";
+
+            fishDiv.appendChild(img);
+            fishDiv.appendChild(label);
+
+            caughtFishContainer.appendChild(fishDiv);
+        }
+
+        castButton.addEventListener("click", castLine);
+        catchButton.addEventListener("click", attemptCatch);
+
+        window.addEventListener("load", () => {
+            castButton.style.display = "none";
+            castLine();
+        });
+
+
+
+    </script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Community Center - Room Tracker</title>
+
+    <link rel="stylesheet" href="crafts.css">
+    <link rel="stylesheet" href="base.css">
+
+    <style>
+        #main {
+            background-image: url(https://i.ibb.co/ccc8spt0/image.png);
+
+            background-color: rgba(255, 255, 255, 0.3);
+            background-blend-mode: lighten;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: 5%;
+
+            border-radius: 20px 20px 0px 0px;
+
+            border-top: 1px solid #746C70;
+
+
+        }
+
+        #sidebar2 {
+
+            border: solid 10px #e0e0e0;
+            border-radius: 20px;
+            overflow: hidden;
+            padding: 10px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="water">
+        <ul>
+            <li><a href="index.html"><img
+                        src="https://stardewvalleywiki.com/mediawiki/images/f/fc/Achievement_Star_02.png"
+                        style="height: 30px;"></a></li>
+            <li><a href="crafts.html">CRAFTS ROOM</a></li>
+            <li><a href="pantry.html">PANTRY ROOM</a></li>
+            <li><a href="fish.html">FISH TANK</a></li>
+            <li><a href="boiler.html">BOILER ROOM</a></li>
+            <li><a href="board.html">BULLETIN BOARD</a></li>
+        </ul>
+
+        <h1>Boiler <img id="gifViewer" src="https://stardewvalleywiki.com/mediawiki/images/a/a5/Magma_Sprite_Anim.gif"
+                alt="Cycling GIF" />
+            Room
+        </h1>
+
+    </div>
+
+
+    <div id="main">
+
+        <div id="bundleContainer"></div>
+
+        <div id="sidebar">
+            <div id="sidebar2">
+                <input type="text" id="searchBox" placeholder="🔎 Search for item..." oninput="applyFilters()" />
+
+                <label>Season:</label>
+                <select id="seasonFilter" onchange="applyFilters()">
+                    <option value="">All</option>
+                    <option value="Spring">Spring</option>
+                    <option value="Summer">Summer</option>
+                    <option value="Fall">Fall</option>
+                    <option value="Winter">Winter</option>
+                </select>
+
+                <label>Status:</label>
+                <select id="statusFilter" onchange="applyFilters()">
+                    <option value="">All</option>
+                    <option value="Complete">Complete</option>
+                    <option value="Incomplete">Incomplete</option>
+                </select>
+
+                <button onclick="reloadData()">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="base.js"></script>
+    <script src="boiler.js"></script>
+    <script>
+        const gifs = [
+            "https://stardewvalleywiki.com/mediawiki/images/a/a5/Magma_Sprite_Anim.gif",
+            "https://stardewvalleywiki.com/mediawiki/images/9/91/Magma_Sparker_Anim.gif"
+        ];
+
+        let currentIndex = 0;
+        const gifViewer = document.getElementById("gifViewer");
+
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % gifs.length;
+            gifViewer.src = gifs[currentIndex] + '?t=' + new Date().getTime(); // force reload
+        }, 3000); // Change every 3 seconds
+    </script>
+
+
+</body>
+
+</html>
